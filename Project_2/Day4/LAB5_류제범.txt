@@ -1,0 +1,57 @@
+랩5_류제범
+Q) 1. Write a query to return all of the country names along with their apporpriate continent names.
+
+A) SELECT continent_name, name FROM countries, continent WHERE countries.continent_id =continent.id;
+A) SELECT ct.name, cn.continent_name FROM countries  AS ct, continents AS cn WHERE ct.continent_id = cn.id;
+
+Q) 2. Write a query to return all of the names and capitals of the European countries.
+
+A) SELECT DISTINCT continent_name, name FROM countries, continent WHERE (continent.id = countries.continent_id )AND continent.id= 3;
+A) SELECT name, capital FROM countries WHERE continent_id IN (SELECT id FROM continent WHERE continent_name = 'Europe');
+
+Q) 3. Write a query to return the first name of any singer who had an album released under
+the Warner Bros label.
+
+A) SELECT albums.singer_id, album_name, first_name, last_name FROM singers, albums WHERE (singers.id = albums.singer_id )AND (singers.id= 2 OR singers.id = 3);
+A)SELECT DISTINCT first_name, last_name FROM singers WHERE singers.id IN (SELECT singer_id FROM albums WHERE label like '%Bros');
+A)SELECT first_name FROM singers WHERE id IN (SELECT singer_id FROM albums WHERE label = 'Warner Bros');
+
+Q) 4. Write a query to return the first name and last name of any singer who released
+an album in the 80s and who is still living, along with the names of the album that was
+released and the release date. Order the results by the singer's age(youngest first)
+
+A)SELECT first_name, last_name, album_name, released FROM singers INNER JOIN albums ON singers.id = albums.singer_id WHERE date_part('year', released)<1990
+		AND date_part('year', released)>=1980 AND deceased = FALSE ORDER BY date_of_birth;
+
+Q) 5. Write a query to return the first name and last name of any singer without an associated album entry.
+
+A) SELECT first_name, last_name FROM singersLEFT JOIN albums ON singers.id = albums.singer_id WHERE albums.singer_id IS NULL;
+
+Q) 6. Rewrite the query for the last question as a sub-query
+
+A) SELECT first_name, last_name FROM singers WHERE id NOT IN ( SELECT singer_id FROM albums WHERE singer_id = singers.id );
+
+Q) 7. Return a list od all orders and their associated product items.
+
+A) SELECT order_id, product_name FROM order_items INNER JOIN products ON order_items.product_id = products.id;
+
+Q) 8. Return the id of any order that includes Fries. Use table aliasing in your query.
+
+A)SELECT DISTINCT order_id, product_name FROM order_items INNER JOIN products ON order_items.product_id = products.id WHERE product_name = 'Fries';
+A)SELECT DISTINCT order_id FROM order_items INNER JOIN products ON order_items.product_id = products.id WHERE product_id = 5;
+
+Q) 9. Build on the query from the previous qusetion to return the name of any customer who ordered fries.
+Return this in a column called 'Customers who like Fries'.
+Don't repeat the same customer name more than once in the results.
+
+A) SELECT DISTINCT customer_name FROM orders INNER JOIN customers ON customers.id = orders.customer_id INNER JOIN order_items ON orders.id = order_items.order_id WHERE product_id = 5;
+
+Q) 10. Write a query to return the total coast of Natasha O'Shea's orders.
+
+A) SELECT SUM(product_cost)FROM order_items INNER JOIN products ON order_items.product_id = products.id
+INNER JOIN orders ON orders.id = order_items.order_id WHERE customer_id = 2 GROUP BY customer_id;
+
+Q) 11. Write a query to return the name of  every product included in an order alongside the number of times it has
+been ordered. Sort the results by product name, ascending.
+
+A) SELECT DISTINCT product_name, COUNT(product_id) FROM products INNER JOIN order_items ON order_items.product_id = products.id GROUP BY product_name ORDER BY product_name;
