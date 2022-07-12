@@ -1,0 +1,83 @@
+1. 테이블을 만드시오
+테이블의 이름은 movie 컬럼패밀리는 info, media 버전 3개씩
+테이블의 이름은 user, 컬럼패밀리 info, check 버전 3개씩
+
+create 'movie', 'info', 'media'
+create 'user', 'info', 'check'
+alter 'movie', {NAME => 'info', VERSIONS =>3}
+alter 'movie', {NAME => 'media', VERSIONS =>3}
+alter 'user', {NAME => 'info', VERSIONS =>3}
+alter 'user', {NAME => 'check', VERSIONS =>3}
+put  'movie', '2', 'info:name', 'Toy Stroy2'
+put  'movie', '3', 'info:name', 'Toy Stroy3'
+put  'movie', '1', 'info:year', '2005'
+put  'movie', '7', 'info:name', 'Star Wars7'
+put  'movie', '7', 'info:year', '2003'
+put  'movie', '8', 'info:year', '2020'
+put  'movie', '1', 'info:name', 'Toy Stroy'
+put  'user', '1', 'info:gender', 'M'
+put  'user', '2', 'info:zip', '18070'
+put  'user', '3', 'info:age', '31'
+
+Q) Movie 테이블의 행 수는?
+
+A) scan 'moive' 
+5개
+
+Q) alter를 사용하여 stitle 컬럼패밀리를 추가하도록 movie 테이블을 변경하고, 확인
+
+A) alter 'movie', 'stitle'
+scan 'movie'
+describe 'movie'
+
+Q)추가한 stitle를 제거하고, 확인
+
+A) disable 'stitle'
+alter 'movie', {'delete' => 'stitle'}
+describe 'movie'
+
+Q)movie 테이블에서 media 컬럼 패밀리를 수정하여 4 가지 버전을 유지하도록 수정.
+
+A) alter 'movie', {NAME => 'media', VERSIONS =>4}
+
+Q) Movie 테이블 데이터 확인, user 테이블 행키 1번 확인
+
+A) describe 'movie'
+scan 'movie'
+describe 'user'
+scan 'user'
+1번 ROW에 info:gnerder 벨류값이 M이 들어가 있다.
+
+Q) 다음 조건을 user 테이블에 insert 후, 행키 100인 행을 화면에 출력
+
+A)put  'user', '100', 'info:age', '20'
+put  'user', '100', 'info:gender', 'F'
+put  'user', '100', 'info:zip', '18730'
+
+get 'user', '100'
+
+Q) 추가 조건을 user 테이블에 insert
+
+A) put  'user', '100', 'info:age', '30'
+put  'user', '100', 'info:age', '40'
+
+Q) user 테이블에서 row key가 100인 행에 age 컬럼 버전의 이전 열을 모두 출력
+
+A) get 'user', '100', {COLUMNS => 'info:age', VERSIONS => 3}
+
+Q) User 테이블을 검색하지만 ,age column만 출력
+
+A) scan 'user', {COLUMNS => 'info:age'}
+
+Q) User 테이블에서 row key가 100인 행의 info:age 컬럼을 삭제
+
+A) disable이 필요가 없다.? 테이블, 전체 컬럼이 아니라서 ..?
+delete 'user', '100', 'info:age' 을 1번 실행하고
+scan 'user'를 한다면 info:age가 여전히 있는 것을 볼 수 있다.
+3번 실행한뒤 scan 'user'를 한다면 info:age가 없어진다.
+해당 데이터가 삭제 되면, 이전 버젼의 데이터를 불러오는것 같다.
+3개의 version을 삭제 할수 있는 deleteall을 사용하여야 한다.
+
+Q)row key 100인 전체 행을 user 테이블에서 삭제
+
+A)deleteall 'user', '100'
